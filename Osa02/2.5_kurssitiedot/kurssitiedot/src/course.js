@@ -1,48 +1,38 @@
 import React from 'react'
 
-const Course = ({course}) => {
-    const Header = () => {
-        const result = course.map(c => <li key={c.id}>{c.name}</li>)
-        return (
-            <div>
-                <h1>{result}</h1>
-            </div>
-        )
-    }
-  
-    const Content = () => {
-        const result = course.map(c => c.parts.map(p => <li key={p.id}>{p.name}, {p.exercises}</li>))
-        return (
-            <div>
-              {result}
-            </div>
-        )
-    }
-
-    const Exercises = () => {
-        const result = course.map(c => c.parts.map(p => p.exercises))
-        var initialValue = 0
-        var sum = result.reduce( (s, p) => {
-            return p
-        }, initialValue)
-        return (
-            <p>Yhteensä {sum} tehtävää</p>
-        )
-    }
-  
-    const Total = () => {
-        return (
-            <div>
-                <Exercises/>
-            </div>
-        )
-    }
-
+const Header = ({n, c}) => {
+    const contents = () => c.parts.map(part => <Content key={part.id} n={part.name} p={part.exercises}/>)
+    let sum = 0
+    const total = c.parts.reduce( (s, p) => {
+        if (!s.exercises) {
+            sum += p.exercises
+            return sum
+        }
+        sum += s.exercises + p.exercises
+        return sum
+      })
     return (
         <div>
-            <Header/>
-            <Content/>
-            <Total/>
+            <h1>{n}</h1>
+            {contents()}
+            {total}
+        </div>
+    )
+}
+
+const Content = ({n, p}) => {
+    return (
+        <div>
+          <p>{n} {p}</p>
+        </div>
+    )
+}
+
+const Course = ({course}) => {
+    const headers = () => course.map(name => <Header key={name.id} n={name.name} c={name}/>)
+    return (
+        <div>
+            {headers()}
         </div>
     )
 
