@@ -2,7 +2,7 @@ https://fullstackopen-2019.github.io/
 
 ### Osa00 ✔
 > Web-sovellusten toiminnan perusteet
-### Osa01 ❌
+### Osa01 ✔
 > Reactin perusteet
 ### Osa02 ❌
 > Palvelimen kanssa tapahtuva kommunikointi
