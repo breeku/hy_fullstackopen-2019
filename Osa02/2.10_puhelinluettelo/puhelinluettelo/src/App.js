@@ -1,28 +1,72 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+const Names = ({name, number}) => {
+  return (
+    <div>
+      <p>{name} : {number}</p>
+    </div>
+  )
 }
 
-export default App;
+const App = () => {
+  const [ persons, setPersons] = useState([]) 
+  const [ newName, setNewName ] = useState('')
+  const [ newNumber, setNewNumber ] = useState('')
+
+  const addName = (event) => {
+    event.preventDefault()
+    if (persons.find(s => s.name == newName)) {
+      window.alert(newName + ' on jo luettelossa')
+    } else {
+      setPersons([
+        ...persons, 
+        {
+          id: persons.length + 1,
+          name: newName,
+          number: newNumber
+        }
+      ])
+    }
+    console.log(persons)
+  }
+
+  const handleChangeName = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleChangeNumero = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const rows = () => persons.map(n => 
+    <Names key={n.id} name={n.name} number={n.number}/>
+  )
+
+  return (
+    <div>
+      <h2>Puhelinluettelo</h2>
+      <form onSubmit={addName}>
+        <div>
+          nimi: <input
+          value={newName}
+          onChange={handleChangeName}
+          />
+          numero: <input
+          value={newNumber}
+          onChange={handleChangeNumero}
+          />
+        </div>
+        <div>
+          <button type="submit">lisää</button>
+        </div>
+      </form>
+      <h2>Numerot</h2>
+      <ul>
+        {rows()}
+      </ul>
+    </div>
+  )
+
+}
+
+export default App
