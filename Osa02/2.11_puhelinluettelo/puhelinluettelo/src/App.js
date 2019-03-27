@@ -28,7 +28,7 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault()
     if (persons.find(s => s.name == newName)) {
-      window.alert(newName + ' on jo luettelossa')
+      window.alert(newName + ' on jo luettelossa.')
     } else {
       setPersons([
         ...persons, 
