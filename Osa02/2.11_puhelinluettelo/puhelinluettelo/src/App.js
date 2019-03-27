@@ -2,37 +2,28 @@ import React, { useState, useEffect } from 'react'
 import personService from './services/persons'
 import './index.css'
 
-const Names = ({na, nu, id, obj, notification}) => {
-  const [name, setName] = useState(na)
-  const [number, setNumber] = useState(nu)
-  const [persons, setPersons] = useState(obj)
-  const removePerson = ({a}) => {
-    console.log(a)
-    if (window.confirm('Poistetaanko ' + name + ' jonka id on ' + id + " ?"))
-      personService
-        .remove(id)
-        .then(r => {
-          notification(`${name}..poistettiin onnistuneesti.`)
-          setName('')
-          setNumber('')
-          setPersons(persons.pop())
-        }).catch(error => {
-          notification(`${name} ...virhe? ${error}`)
-          setTimeout(() => {notification(null)}, 5000)
-        })
+const Rows = ({n, err, suc, setPersons}) => {
+  const removePerson = (c) => {
+    if (window.confirm('Poistetaanko ' + c.name + ' jonka id on ' + c.id + " ?"))
+    personService
+      .remove(c.id)
+      .then(r => {
+        suc(`${c.name} poistettiin onnistuneesti.`)
+        const copy = [...n]
+        copy.splice(c.id - 1, 1)
+        setPersons(copy)
+      }).catch(error => {
+        err(`${c.name} ...virhe? ${error}`)
+        setTimeout(() => {err(null)}, 5000)
+    })
     }
-  const o = name && number !== "" ? <p>{name} : {number} <button onClick={removePerson}>poista</button></p> : null // :D
 
-  return (
-    <div>
-      {o}
-    </div>
-  )
-}
-
-const Rows = ({n, notification}) => {
   const rows = () => n.map(a => 
-    <Names key={a.id} na={a.name} nu={a.number} id={a.id} obj={n} notification={notification}/> // obj{n} JA notification menee n.length verran Names komponenttiin.. ei hyvä
+    <li key={a.id}>
+      <p>{a.name} : {a.number} 
+      <button onClick={() => removePerson(a)}>poista</button>
+      </p>
+    </li>
   )
 
   return (
@@ -78,16 +69,24 @@ const Lisaa = ({name, hName, number, hNumber, submit}) => {
   )
 }
 
-const Notification = ({message}) => {
-  if (message === null) {
+const Notification = ({errMessage, sucMessage}) => {
+  if (errMessage === null && sucMessage === null) {
     return null
   }
 
-  return (
-    <div className="error">
-      {message}
-    </div>
-  )
+  if (errMessage) {
+    return (
+      <div className="error">
+        {errMessage}
+      </div>
+    )
+  } else {
+    return (
+      <div className="success">
+        {sucMessage}
+      </div>
+    )
+  }
 }
 
 const App = () => {
@@ -97,14 +96,13 @@ const App = () => {
   const [ searchName, setSearchName ] = useState('')
   const [ showAll, setShowAll ] = useState(true)
   const [ errorMessage, setErrorMessage ] = useState('')
+  const [ successMessage, setSuccessMessage ] = useState('')
   const filteredPersons = showAll ? persons : persons.filter(n => n.name.toLowerCase().includes(searchName.toLowerCase()))
 
   useEffect(() => {
-    console.log('effect')
     personService
       .getAll()
       .then(p => {
-        console.log('promise fulfilled')
         setPersons(p)
       })
   }, [])
@@ -132,7 +130,7 @@ const App = () => {
         personService
           .update(personId, personObject)
           .then(n => {
-            setErrorMessage(`${newName} ..n päivitys onnistui!`)
+            setSuccessMessage(`${newName} n päivitys onnistui!`)
             const copy = [...persons]
             copy.splice(personId - 1, 1, n)
             setPersons([]) // jos suoraan tekee alemman, dom ei päivity
@@ -150,10 +148,11 @@ const App = () => {
         name: newName,
         number: newNumber
       }
+      console.log(`id: ${maxId + 1} | person : ${newName}`)
       personService
         .create(personObject)
         .then(n => {
-          setErrorMessage(`Lisättiin.. ${newName}`)
+          setSuccessMessage(`Lisättiin ${newName}`)
           setPersons(persons.concat(n))
           setNewName('')
           setNewNumber('')
@@ -184,10 +183,10 @@ const App = () => {
   return (
     <div>
       <h1>Puhelinluettelo</h1>
-      <Notification message={errorMessage} />
+      <Notification errMessage={errorMessage} sucMessage={successMessage} />
         <Filter s={searchName} h={handleSearchName} />
         <Lisaa name={newName} hName={handleChangeName} number={newNumber} hNumber={handleChangeNumber} submit={addName} />
-        <Rows n={filteredPersons} notification={setErrorMessage}/>
+        <Rows setPersons={setPersons} n={filteredPersons} err={setErrorMessage} suc={setSuccessMessage}/>
     </div>
   )
 
