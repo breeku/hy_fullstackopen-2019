@@ -1,10 +1,34 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
-const Names = ({name, number}) => {
+const Names = ({name, number, id}) => {
+  const removePerson = () => {
+    if (window.confirm('Poistetaanko ' + name + ' jonka id on ' + id + " ?"))
+      personService
+        .remove(id) // mb just remove content of the said id, otherwise breaks id = persons.length + 1
+        .then(r => {
+          window.location.reload(); // bad way
+        })
+    }
+
   return (
     <div>
-      <p>{name} : {number}</p>
+      <p>{name} : {number} <button onClick={removePerson}>poista</button></p>
+    </div>
+  )
+}
+
+const Rows = ({n}) => {
+  const rows = () => n.map(n => 
+    <Names key={n.id} name={n.name} number={n.number} id={n.id}/>
+  )
+
+  return (
+    <div>
+      <h2>Numerot</h2>
+      <ul>
+        {rows()}
+      </ul>
     </div>
   )
 }
@@ -42,52 +66,60 @@ const Lisaa = ({name, hName, number, hNumber, submit}) => {
   )
 }
 
-const Rows = ({n}) => {
-  const rows = () => n.map(n => 
-    <Names key={n.id} name={n.name} number={n.number}/>
-  )
-
-  return (
-    <div>
-      <h2>Numerot</h2>
-      <ul>
-        {rows()}
-      </ul>
-    </div>
-  )
-}
-
 const App = () => {
   const [ persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
-  const [ searchName, setSearchName ] = useState()
+  const [ searchName, setSearchName ] = useState('')
   const [ showAll, setShowAll ] = useState(true)
-  const namesToShow = showAll ? persons : persons.filter(n => n.name.toLowerCase().includes(searchName.toLowerCase()))
+  const filteredPersons = showAll ? persons : persons.filter(n => n.name.toLowerCase().includes(searchName.toLowerCase()))
 
   useEffect(() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
+    personService
+      .getAll()
+      .then(p => {
         console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(p)
       })
   }, [])
 
   const addName = (event) => {
     event.preventDefault()
     if (persons.find(s => s.name === newName)) {
-      window.alert(newName + ' on jo luettelossa.')
-    } else {
-      setPersons([
-        ...persons, 
-        {
-          id: persons.length + 1,
+      if (window.confirm(newName + ' on jo luettelossa, korvataanko vanha numero uudella?')){
+        const personId = persons.findIndex(s => s.name === newName) + 1
+        const personObject = {
           name: newName,
           number: newNumber
         }
-      ])
+        personService
+          .update(personId, personObject)
+          .then(n => {
+            window.location.reload(); // bad way
+          })
+      }
+    } else {
+      const personObject = {
+        id: persons.length + 1,
+        name: newName,
+        number: newNumber
+      }
+      personService
+        .create(personObject)
+        .then(n => {
+          setPersons(persons.concat(n))
+          setNewName('')
+          setNewNumber('')
+        })
+      //setPersons([
+      //  ...persons, 
+      //  {
+      //    id: persons.length + 1,
+      //    name: newName,
+      //    number: newNumber
+      //  }
+      //])
     }
   }
 
@@ -113,7 +145,7 @@ const App = () => {
       <h1>Puhelinluettelo</h1>
         <Filter s={searchName} h={handleSearchName} />
         <Lisaa name={newName} hName={handleChangeName} number={newNumber} hNumber={handleChangeNumber} submit={addName} />
-        <Rows n={namesToShow}/>
+        <Rows n={filteredPersons}/>
     </div>
   )
 
