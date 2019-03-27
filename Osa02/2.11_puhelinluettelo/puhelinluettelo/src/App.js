@@ -1,13 +1,57 @@
 import React, { useState } from 'react'
 
-/////////////////////////////////
-// TODO: SPLIT INTO COMPONENTS //
-/////////////////////////////////
-
 const Names = ({name, number}) => {
   return (
     <div>
       <p>{name} : {number}</p>
+    </div>
+  )
+}
+
+const Filter = ({s, h}) => {
+  return (
+    <div>
+      rajaa näytettäviä
+      <input
+        value={s}
+        onChange={h}
+      />
+    </div>
+  )
+}
+
+const Lisaa = ({name, hName, number, hNumber, submit}) => {
+  return (
+    <form onSubmit={submit}>
+      <h2>Lisää uusi</h2>
+      <div>
+        nimi: <input
+        value={name}
+        onChange={hName}
+        />
+        numero: <input
+        value={number}
+        onChange={hNumber}
+        />
+      </div>
+      <div>
+        <button type="submit">lisää</button>
+      </div>
+    </form>
+  )
+}
+
+const Rows = ({n}) => {
+  const rows = () => n.map(n => 
+    <Names key={n.id} name={n.name} number={n.number}/>
+  )
+
+  return (
+    <div>
+      <h2>Numerot</h2>
+      <ul>
+        {rows()}
+      </ul>
     </div>
   )
 }
@@ -27,7 +71,7 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    if (persons.find(s => s.name == newName)) {
+    if (persons.find(s => s.name === newName)) {
       window.alert(newName + ' on jo luettelossa.')
     } else {
       setPersons([
@@ -45,53 +89,25 @@ const App = () => {
     setNewName(event.target.value)
   }
 
-  const handleChangeNumero = (event) => {
+  const handleChangeNumber = (event) => {
     setNewNumber(event.target.value)
   }
 
   const handleSearchName = (event) => {
     setSearchName(event.target.value)
-    if (searchName == "") {
+    if (searchName === "") {
       setShowAll(true)
     } else {
       setShowAll(false)
     }
   }
 
-  const rows = () => namesToShow.map(n => 
-    <Names key={n.id} name={n.name} number={n.number}/>
-  )
-
   return (
     <div>
       <h1>Puhelinluettelo</h1>
-      <div>
-        rajaa näytettäviä
-        <input
-          value={searchName}
-          onChange={handleSearchName}
-        />
-      </div>
-      <h2>Lisää uusi</h2>
-      <form onSubmit={addName}>
-        <div>
-          nimi: <input
-          value={newName}
-          onChange={handleChangeName}
-          />
-          numero: <input
-          value={newNumber}
-          onChange={handleChangeNumero}
-          />
-        </div>
-        <div>
-          <button type="submit">lisää</button>
-        </div>
-      </form>
-      <h2>Numerot</h2>
-      <ul>
-        {rows()}
-      </ul>
+        <Filter s={searchName} h={handleSearchName} />
+        <Lisaa name={newName} hName={handleChangeName} number={newNumber} hNumber={handleChangeNumber} submit={addName} />
+        <Rows n={namesToShow}/>
     </div>
   )
 
