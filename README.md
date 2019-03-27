@@ -4,7 +4,7 @@ https://fullstackopen-2019.github.io/
 > Web-sovellusten toiminnan perusteet
 ### Osa01 ✔
 > Reactin perusteet
-### Osa02 ❌
+### Osa02 ✔
 > Palvelimen kanssa tapahtuva kommunikointi
 ### Osa03 ❌
 > Palvelimen ohjelmointi NodeJS:n Express-kirjastolla
