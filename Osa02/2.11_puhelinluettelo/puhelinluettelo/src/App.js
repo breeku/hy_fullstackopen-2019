@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 
+/////////////////////////////////
+// TODO: SPLIT INTO COMPONENTS //
+/////////////////////////////////
+
 const Names = ({name, number}) => {
   return (
     <div>
