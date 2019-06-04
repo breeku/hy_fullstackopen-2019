@@ -1,195 +1,188 @@
-import React, { useState, useEffect } from 'react'
-import personService from './services/persons'
-import './index.css'
+import React, { useState, useEffect } from "react";
+import personService from "./services/persons";
+import "./index.css";
 
-const Rows = ({n, err, suc, setPersons}) => {
-  const removePerson = (c) => {
-    if (window.confirm('Poistetaanko ' + c.name + ' jonka id on ' + c.id + " ?"))
-    personService
-      .remove(c.id)
-      .then(r => {
-        suc(`${c.name} poistettiin onnistuneesti.`)
-        const copy = [...n]
-        copy.splice(c.id - 1, 1)
-        setPersons(copy)
-      }).catch(error => {
-        err(`${c.name} ...virhe? ${error}`)
-        setTimeout(() => {err(null)}, 5000)
-    })
+const Ilmoitus = ({ errorMessage, successMessage }) => {
+    if (errorMessage === null && successMessage === null) {
+        return null;
     }
+    if (errorMessage) {
+        return <div className="error">{errorMessage}</div>;
+    } else {
+        return <div className="success">{successMessage}</div>;
+    }
+};
 
-  const rows = () => n.map(a => 
-    <li key={a.id}>
-      <p>{a.name} : {a.number} 
-      <button onClick={() => removePerson(a)}>poista</button>
-      </p>
-    </li>
-  )
+const Numerot = ({ persons, removePerson }) => {
+    console.log(persons)
+    return persons.map(person => (
+        <li key={person.id}>
+            <p>
+                {person.name} : {person.number}
+                <button className="poista" onClick={() => removePerson(person)}>
+                    poista
+                </button>
+            </p>
+        </li>
+    ));
+};
 
-  return (
-    <div>
-      <h2>Numerot</h2>
-      <ul>
-        {rows()}
-      </ul>
-    </div>
-  )
-}
-
-const Filter = ({s, h}) => {
-  return (
-    <div>
-      rajaa näytettäviä
-      <input
-        value={s}
-        onChange={h}
-      />
-    </div>
-  )
-}
-
-const Lisaa = ({name, hName, number, hNumber, submit}) => {
-  return (
-    <form onSubmit={submit}>
-      <h2>Lisää uusi</h2>
-      <div>
-        nimi: <input
-        value={name}
-        onChange={hName}
-        />
-        numero: <input
-        value={number}
-        onChange={hNumber}
-        />
-      </div>
-      <div>
-        <button type="submit">lisää</button>
-      </div>
-    </form>
-  )
-}
-
-const Notification = ({errMessage, sucMessage}) => {
-  if (errMessage === null && sucMessage === null) {
-    return null
-  }
-
-  if (errMessage) {
+const Lisaa = ({
+    handleNameChange,
+    handleNumberChange,
+    addPerson,
+    name,
+    number
+}) => {
     return (
-      <div className="error">
-        {errMessage}
-      </div>
-    )
-  } else {
-    return (
-      <div className="success">
-        {sucMessage}
-      </div>
-    )
-  }
-}
+        <form onSubmit={addPerson}>
+            <div>
+                nimi: <input value={name} onChange={handleNameChange} />
+            </div>
+            <div className="lisaa">
+                numero: <input value={number} onChange={handleNumberChange} />
+            </div>
+            <div>
+                <button type="submit">lisää</button>
+            </div>
+        </form>
+    );
+};
 
 const App = () => {
-  const [ persons, setPersons] = useState([])
-  const [ newName, setNewName ] = useState('')
-  const [ newNumber, setNewNumber ] = useState('')
-  const [ searchName, setSearchName ] = useState('')
-  const [ showAll, setShowAll ] = useState(true)
-  const [ errorMessage, setErrorMessage ] = useState('')
-  const [ successMessage, setSuccessMessage ] = useState('')
-  const filteredPersons = showAll ? persons : persons.filter(n => n.name.toLowerCase().includes(searchName.toLowerCase()))
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const [persons, setPersons] = useState([]);
+    const [name, setName] = useState("");
+    const [number, setNumber] = useState("");
+    const [searchFilter, setSearchFilter] = useState("");
 
-  useEffect(() => {
-    personService
-      .getAll()
-      .then(p => {
-        setPersons(p)
-      })
-  }, [])
+    const handleNameChange = event => setName(event.target.value);
+    const handleNumberChange = event => setNumber(event.target.value);
+    const handleFilter = event => setSearchFilter(event.target.value);
 
-  const addName = (event) => {
-    event.preventDefault()
-    const findName = filteredPersons.find(s => s.name === newName)
-    const maxId = filteredPersons.length > 0
-      ? Math.max(...filteredPersons.map(n => n.id)) 
-      : 0
-    const minId = filteredPersons.length > 0
-      ? Math.min(...filteredPersons.map(n => n.id))
-      : 0
-    if (findName) {
-      const personId = filteredPersons.length > 0 
-        ? filteredPersons.find(n => n.id === findName.id).id
-        : minId
-      console.log(`max: ${maxId} | min: ${minId} | person : ${newName} | personId: ${personId}`)
-      if (window.confirm(newName + ' on jo luettelossa, korvataanko vanha numero uudella?')){
-        const personObject = {
-          id: personId,
-          name: newName,
-          number: newNumber
+    useEffect(() => {
+        personService.getAll().then(data => {
+            setPersons(data);
+        });
+    }, []);
+
+    const removePerson = person => {
+        if (
+            window.confirm(
+                "Poistetaanko " +
+                    person.name +
+                    " jonka id on " +
+                    person.id +
+                    " ?"
+            )
+        )
+            personService
+                .remove(person.id)
+                .then(response => {
+                    setSuccessMessage(
+                        `${person.name} poistettiin onnistuneesti.`
+                    );
+                    setPersons(persons.filter(p => p.id !== person.id));
+                })
+                .catch(error => {
+                    setErrorMessage(`${person.name} virhe. ${error}`);
+                    setTimeout(() => {
+                        errorMessage(null);
+                    }, 5000);
+                });
+    };
+
+    const addPerson = event => {
+        event.preventDefault();
+        const findName = filteredPersons.find(s => s.name === name);
+        if (findName) {
+            /*
+            const personId = findName.id;
+            if (
+                window.confirm(
+                    name +
+                        " on jo luettelossa, korvataanko vanha numero uudella?"
+                )
+            ) {
+                const personObject = {
+                    id: personId,
+                    name: name,
+                    number: number
+                };
+                personService
+                    .update(personId, personObject)
+                    .then(n => {
+                        setSuccessMessage(`${name} n päivitys onnistui!`);
+                        const copy = [...persons];
+                        copy.splice(personId - 1, 1, n);
+                        setPersons([]); // jos suoraan tekee alemman, dom ei päivity
+                        setPersons(copy);
+                        setName("");
+                        setNumber("");
+                    })
+                    .catch(error => {
+                        setErrorMessage(`${name} ...virhe? ${error}`);
+                        setTimeout(() => {
+                            setErrorMessage(null);
+                        }, 5000);
+                    });
+            } */
+        } else {
+            const personObject = {
+                name,
+                number
+            };
+            personService
+                .create(personObject)
+                .then(id => {
+                    personObject.id = id;
+                    setSuccessMessage(`Lisättiin ${name}`);
+                    let copy = [...persons.concat(personObject)];
+                    setPersons(copy);
+                    setName("");
+                    setNumber("");
+                })
+                .catch(error => {
+                    console.log(error);
+                    setErrorMessage(`${name} virhe. ${error}`);
+                    setTimeout(() => {
+                        setErrorMessage(null);
+                    }, 5000);
+                });
         }
-        personService
-          .update(personId, personObject)
-          .then(n => {
-            setSuccessMessage(`${newName} n päivitys onnistui!`)
-            const copy = [...persons]
-            copy.splice(personId - 1, 1, n)
-            setPersons([]) // jos suoraan tekee alemman, dom ei päivity
-            setPersons(copy)
-            setNewName('')
-            setNewNumber('')
-          }).catch(error => {
-            setErrorMessage(`${newName} ...virhe? ${error}`)
-            setTimeout(() => {setErrorMessage(null)}, 5000)
-          })
-      }
-    } else {
-      const personObject = {
-        id: maxId + 1,
-        name: newName,
-        number: newNumber
-      }
-      console.log(`id: ${maxId + 1} | person : ${newName}`)
-      personService
-        .create(personObject)
-        .then(n => {
-          setSuccessMessage(`Lisättiin ${newName}`)
-          setPersons(persons.concat(n))
-          setNewName('')
-          setNewNumber('')
-        }).catch(error => {
-          setErrorMessage(`${newName} ...virhe? ${error}`)
-          setTimeout(() => {setErrorMessage(null)}, 5000)
-        })
-    }
-  }
+    };
 
-  const handleChangeName = (event) => {
-    setNewName(event.target.value)
-  }
+    const filteredPersons =
+        searchFilter.length === 0
+            ? persons
+            : persons.filter(p =>
+                  p.name.toLowerCase().includes(searchFilter.toLowerCase())
+              );
 
-  const handleChangeNumber = (event) => {
-    setNewNumber(event.target.value)
-  }
+    return (
+        <div>
+            <h1>Puhelinluettelo</h1>
+            <Ilmoitus
+                errorMessage={errorMessage}
+                successMessage={successMessage}
+            />
+            <h3>Rajaa näytettäviä</h3>
+            <input value={searchFilter} onChange={handleFilter} />
 
-  const handleSearchName = (event) => {
-    setSearchName(event.target.value)
-    if (event.target.value === "") { // jos käyttää searchName === "" tulee domin päivitys aina yhden "kirjaimen" myöhässä
-      setShowAll(true)
-    } else {
-      setShowAll(false)
-    }
-  }
+            <h3>Lisää uusi</h3>
+            <Lisaa
+                handleNameChange={handleNameChange}
+                handleNumberChange={handleNumberChange}
+                addPerson={addPerson}
+                name={name}
+                number={number}
+            />
 
-  return (
-    <div>
-      <h1>Puhelinluettelo</h1>
-      <Notification errMessage={errorMessage} sucMessage={successMessage} />
-        <Filter s={searchName} h={handleSearchName} />
-        <Lisaa name={newName} hName={handleChangeName} number={newNumber} hNumber={handleChangeNumber} submit={addName} />
-        <Rows setPersons={setPersons} n={filteredPersons} err={setErrorMessage} suc={setSuccessMessage}/>
-    </div>
-  )
+            <h3>Numerot</h3>
+            <Numerot persons={filteredPersons} removePerson={removePerson} />
+        </div>
+    );
+};
 
-}
-
-export default App
+export default App;
