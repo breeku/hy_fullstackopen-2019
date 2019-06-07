@@ -6,7 +6,7 @@ https://fullstackopen-2019.github.io/
 > Reactin perusteet
 ### Osa02 ✔
 > Palvelimen kanssa tapahtuva kommunikointi
-### Osa03 ❌
+### Osa03 ✔
 > Palvelimen ohjelmointi NodeJS:n Express-kirjastolla
 ### Osa04 ❌
 > Express-sovellusten testaaminen
