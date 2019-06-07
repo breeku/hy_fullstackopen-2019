@@ -14,7 +14,6 @@ const Ilmoitus = ({ errorMessage, successMessage }) => {
 };
 
 const Numerot = ({ persons, removePerson }) => {
-    console.log(persons)
     return persons.map(person => (
         <li key={person.id}>
             <p>
@@ -79,25 +78,24 @@ const App = () => {
         )
             personService
                 .remove(person.id)
-                .then(response => {
+                .then(res => {
                     setSuccessMessage(
                         `${person.name} poistettiin onnistuneesti.`
                     );
                     setPersons(persons.filter(p => p.id !== person.id));
                 })
                 .catch(error => {
-                    setErrorMessage(`${person.name} virhe. ${error}`);
+                    setErrorMessage(`${name} ...virhe? ${error}`);
                     setTimeout(() => {
-                        errorMessage(null);
+                        setErrorMessage(null);
                     }, 5000);
                 });
     };
 
     const addPerson = event => {
         event.preventDefault();
-        const findName = filteredPersons.find(s => s.name === name);
+        const findName = filteredPersons.find(p => p.name === name);
         if (findName) {
-            /*
             const personId = findName.id;
             if (
                 window.confirm(
@@ -127,7 +125,7 @@ const App = () => {
                             setErrorMessage(null);
                         }, 5000);
                     });
-            } */
+            }
         } else {
             const personObject = {
                 name,
@@ -144,8 +142,8 @@ const App = () => {
                     setNumber("");
                 })
                 .catch(error => {
-                    console.log(error);
-                    setErrorMessage(`${name} virhe. ${error}`);
+                    console.log(error.response.data.error);
+                    setErrorMessage(`${error.response.data.error}`);
                     setTimeout(() => {
                         setErrorMessage(null);
                     }, 5000);
