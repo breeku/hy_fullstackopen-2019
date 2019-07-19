@@ -44,18 +44,16 @@ const mostBlogs = blogs => {
 const mostLikes = blogs => {
     a = []
     for (p of blogs) {
-        if (a.length == 0) {
-            a.push({ author: p.author, likes: p.likes })
-        } else {
-            for (i of a) {
-                if (i.author == p.author) {
-                    i.likes += p.likes
-                }
+        for (i of a) {
+            if (i.author == p.author) {
+                i.likes += p.likes
             }
-            a.push({ author: p.author, likes: p.likes })
         }
+        a.push({ author: p.author, likes: p.likes })
     }
-    liked = a.reduce((prev, current) => (prev.likes > current.likes) ? prev : current)
+    liked = a.reduce((prev, current) =>
+        prev.likes > current.likes ? prev : current
+    )
     return liked
 }
 
