@@ -8,7 +8,7 @@ https://fullstackopen-2019.github.io/
 > Palvelimen kanssa tapahtuva kommunikointi
 ### Osa03 ✔
 > Palvelimen ohjelmointi NodeJS:n Express-kirjastolla
-### Osa04 ❌
+### Osa04 ✔
 > Express-sovellusten testaaminen
 ### Osa05 ❌
 > React-sovelluksen testaaminen, custom hookit.
