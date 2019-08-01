@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react'
-import Blog from './Blog'
+import React, { useState, useEffect } from "react"
+import Blog from "./Blog"
 import blogService from "../services/blogs"
 
 const Bloglist = () => {
@@ -13,11 +13,13 @@ const Bloglist = () => {
         fetchBlogs()
     }, [])
 
-    return blogs.map(blog => (
-        <li key={blog.id}>
-            <Blog blog={blog} />
-        </li>
-    ))
+    return blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map(blog => (
+            <li key={blog.id}>
+                <Blog blog={blog} />
+            </li>
+        ))
 }
 
 export default Bloglist

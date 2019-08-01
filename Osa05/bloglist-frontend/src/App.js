@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react"
 import Bloglist from "./components/Bloglist"
 import loginService from "./services/login"
 import blogs from "./services/blogs"
-import Newblog from "./components/newBlog"
+import Newblog from "./components/NewBlog"
+import Notification from "./components/Notification"
 
 const App = () => {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [user, setUser] = useState(null)
+    const [successMsg, setSuccessMsg] = useState("")
+    const [errorMsg, setErrorMsg] = useState("")
 
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser")
-        console.log(loggedUserJSON)
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON)
             setUser(user)
@@ -26,18 +28,23 @@ const App = () => {
                 username,
                 password
             })
-            console.log(window.localStorage)
             window.localStorage.setItem(
                 "loggedBlogappUser",
                 JSON.stringify(user)
             )
-            console.log(window.localStorage)
             blogs.setToken(user.token)
             setUser(user)
             setUsername("")
             setPassword("")
+            setSuccessMsg("Successfully logged in")
         } catch (exception) {
-            console.log(exception)
+            if (exception.response) {
+                setErrorMsg(exception.response.data.error)
+                console.log(exception.response)
+            } else {
+                console.log(exception)
+                setErrorMsg(exception)
+            }
         }
     }
 
@@ -81,6 +88,12 @@ const App = () => {
 
     return (
         <div>
+            <Notification
+                successMsg={successMsg}
+                setSuccessMsg={setSuccessMsg}
+                errorMsg={errorMsg}
+                setErrorMsg={setErrorMsg}
+            />
             {user === null ? (
                 loginForm()
             ) : (
