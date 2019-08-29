@@ -10,7 +10,7 @@ https://fullstackopen-2019.github.io/
 > Palvelimen ohjelmointi NodeJS:n Express-kirjastolla
 ### Osa04 ✔
 > Express-sovellusten testaaminen
-### Osa05 ❌
+### Osa05 ✔
 > React-sovelluksen testaaminen, custom hookit.
 ### Osa06 ❌
 > Sovelluksen tilan hallinta Redux-kirjastolla
