@@ -13,13 +13,17 @@ const Bloglist = () => {
         fetchBlogs()
     }, [])
 
-    return blogs
-        .sort((a, b) => b.likes - a.likes)
-        .map(blog => (
-            <li key={blog.id}>
-                <Blog blog={blog} />
-            </li>
-        ))
+    return (
+        <div>
+            {blogs ? (
+                blogs
+                    .sort((a, b) => b.likes - a.likes)
+                    .map(blog => <Blog blog={blog} key={blog.id}/>)
+            ) : (
+                <div />
+            )}
+        </div>
+    )
 }
 
 export default Bloglist

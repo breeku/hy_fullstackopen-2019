@@ -2,13 +2,21 @@ import React, { useState } from "react"
 import blogService from "../services/blogs"
 import Notification from "../components/Notification"
 import Togglable from "../components/Togglable"
+import { useField } from "../hooks"
 
 const Newblog = () => {
-    const [title, setTitle] = useState("")
-    const [author, setAuthor] = useState("")
-    const [url, setUrl] = useState("")
+    const title = useField("text")
+    const resetTitle = title.resetValue
+    const author = useField("text")
+    const resetAuthor = author.resetValue
+    const url = useField("text")
+    const resetUrl = url.resetValue
     const [successMsg, setSuccessMsg] = useState("")
     const [errorMsg, setErrorMsg] = useState("")
+
+    delete title.resetValue
+    delete author.resetValue
+    delete url.resetValue
 
     const blogFormRef = React.createRef()
 
@@ -17,9 +25,9 @@ const Newblog = () => {
         blogFormRef.current.toggleVisibility()
         try {
             await blogService.create({
-                title,
-                author,
-                url
+                title: title.value,
+                author: author.value,
+                url: url.value
             })
             setSuccessMsg(
                 "Successfully posted " +
@@ -29,9 +37,9 @@ const Newblog = () => {
                     " and a url of " +
                     url
             )
-            setTitle("")
-            setAuthor("")
-            setUrl("")
+            resetTitle()
+            resetAuthor()
+            resetUrl()
         } catch (err) {
             setErrorMsg(err.response.data.message)
             console.log(err)
@@ -52,32 +60,19 @@ const Newblog = () => {
                         <div>
                             title
                             <input
-                                name="title"
-                                type="text"
-                                value={title}
-                                onChange={({ target }) =>
-                                    setTitle(target.value)
-                                }
+                                {...title}
                             />
                         </div>
                         <div>
                             author
                             <input
-                                name="author"
-                                type="text"
-                                value={author}
-                                onChange={({ target }) =>
-                                    setAuthor(target.value)
-                                }
+                                {...author}
                             />
                         </div>
                         <div>
                             url
                             <input
-                                name="url"
-                                type="text"
-                                value={url}
-                                onChange={({ target }) => setUrl(target.value)}
+                                {...url}
                             />
                         </div>
                         <button type="submit">post</button>

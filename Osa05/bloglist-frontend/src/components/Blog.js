@@ -75,7 +75,7 @@ const Blog = ({ blog }) => {
                 <div href="#" onClick={toggleVisibility} style={clickableArea}>
                     {blog.title} by {blog.author}.
                 </div>
-                <div>
+                <div className="visible">
                     {visible ? (
                         <div>
                             <a href={blog.url}>{blog.url}</a>
@@ -90,7 +90,9 @@ const Blog = ({ blog }) => {
                                 <u>unknown</u>
                             )}
                             <br />
-                            {blog.user.username ===
+                            {JSON.parse(
+                                window.localStorage.getItem("loggedBlogappUser")
+                            ) !== null && blog.user.username ===
                             JSON.parse(
                                 window.localStorage.getItem("loggedBlogappUser")
                             ).username ? (
