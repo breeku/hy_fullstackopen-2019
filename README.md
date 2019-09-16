@@ -12,7 +12,7 @@ https://fullstackopen-2019.github.io/
 > Express-sovellusten testaaminen
 ### Osa05 ✔
 > React-sovelluksen testaaminen, custom hookit.
-### Osa06 ❌
+### Osa06 ✔
 > Sovelluksen tilan hallinta Redux-kirjastolla
 ### Osa07 ❌
 > React router, tyylikirjastot ja webpack
